@@ -400,7 +400,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         RU_J,    RU_TS,   RU_U,    RU_K,    RU_IE,       RU_N,    RU_G,    RU_SH,   RU_SCH,  RU_Z,
         GUI_RF,  ALT_RY,  RU_V,    CTL_RA,  RU_P,        RU_R,    CTL_RO,  RU_L,    ALT_RD,  GUI_RZH,
         RU_YA,   RU_CH,   RU_S,    RU_M,    RU_I,        RU_T,    RU_SS,   RU_B,    RU_YU,   RU_E,
-        RU_HA, KC_ESC, KC_SPC, MO(_NAV), KC_LSFT,      KC_ENT, MO(_SYM_RU), KC_BSPC, KC_TAB, RU_IO,
+        KC_ESC, RU_HA, KC_SPC, MO(_NAV), KC_LSFT,      KC_ENT, MO(_SYM_RU), KC_BSPC, RU_IO, KC_TAB,
         KC_MUTE, KC_MUTE),
 
     /*

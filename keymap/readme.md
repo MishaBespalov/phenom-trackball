@@ -15,8 +15,11 @@ Phenom Micro (40 keys + trackball on the right half).
 Thumb cluster (Phenom Micro has 5 thumb keys per hand):
 
 ```
-left  (outer→inner): Esc  --  Space  NAV  Shift   (RU outer = х)
-right (inner→outer): Enter  SYM  Bspc  --  Tab     (RU outer = ё)
+left  (outer→inner): Esc  --  Space  NAV  Shift   (RU: -- = х)
+right (inner→outer): Enter  SYM  Bspc  --  Tab     (RU: -- = ё)
+
+Esc/Tab are the outermost thumbs on both EN and RU. On RU the second-from-outer
+slots hold х (left) and ё (right); on EN they're empty.
 ```
 
 The trackball, OLED, RGB and split-pointing are handled by the Ergohaven
