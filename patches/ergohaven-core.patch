@@ -1,0 +1,77 @@
+diff --git a/keyboards/ergohaven/phenom_micro/rev1/pointing.c b/keyboards/ergohaven/phenom_micro/rev1/pointing.c
+index e92f40c0..6e7dc203 100644
+--- a/keyboards/ergohaven/phenom_micro/rev1/pointing.c
++++ b/keyboards/ergohaven/phenom_micro/rev1/pointing.c
+@@ -56,7 +56,8 @@ typedef union {
+     } __attribute__((packed));
+ } phenom_via_config_t;
+ 
+-static const uint16_t phenom_trackball_cpi_table[] = {200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200};
++// misha: index 1 = 832 (overall trackball CPI; default dpi index is 1). Sniper is boosted x5/4 below = ~1040.
++static const uint16_t phenom_trackball_cpi_table[] = {200, 832, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200};
+ static const uint16_t phenom_touchpad_cpi_table[]  = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+ 
+ #define PHENOM_LAYOUT_SCHEMA_V2 (1u << 31)
+@@ -551,10 +552,21 @@ static report_mouse_t phenom_apply_side_mode(report_mouse_t mrpt, split_pointing
+     }
+ 
+     switch (pmode) {
+-        case POINTING_MODE_SNIPER:
+-            mrpt.x = shift_x;
+-            mrpt.y = shift_y;
++        case POINTING_MODE_SNIPER: {
++            // misha: boosted sniper — multiply by 5/4 (1.25x) with remainder
++            // accumulation so sniper can be FASTER than the normal CPI.
++            // sniper sens divisor is 1 (eh_pointing.c), so shift_* are raw counts.
++            // CPI 832 * 5/4 = ~1040.
++            static int32_t snipe_acc_x[SPLIT_POINTING_SIDE_COUNT] = {0};
++            static int32_t snipe_acc_y[SPLIT_POINTING_SIDE_COUNT] = {0};
++            snipe_acc_x[side] += shift_x * 5;
++            snipe_acc_y[side] += shift_y * 5;
++            mrpt.x = snipe_acc_x[side] / 4;
++            mrpt.y = snipe_acc_y[side] / 4;
++            snipe_acc_x[side] -= (int32_t)mrpt.x * 4;
++            snipe_acc_y[side] -= (int32_t)mrpt.y * 4;
+             break;
++        }
+ 
+         case POINTING_MODE_SCROLL:
+             if (abs(shift_x) > abs(shift_y)) {
+diff --git a/keyboards/ergohaven/src/eh_pointing.c b/keyboards/ergohaven/src/eh_pointing.c
+index 99ab4520..8230ee45 100644
+--- a/keyboards/ergohaven/src/eh_pointing.c
++++ b/keyboards/ergohaven/src/eh_pointing.c
+@@ -74,14 +74,14 @@ kb_settings_split_pointing_t get_split_pointing_settings_default(void) {
+         .axis              = {ROT_90, ROT_90, ROT_180, ROT_0},
+         .dpi_idx           = {1, 1, 3, 3},
+         .mode              = {POINTING_MODE_NORMAL, POINTING_MODE_NORMAL},
+-        .sens              = {{16, 4, 32}, {16, 4, 32}},
++        .sens              = {{16, 1, 32}, {16, 1, 32}}, // misha: sniper divisor 1 (raw); boosted x5/4 in pointing.c sniper case -> faster than normal; [normal(unused), sniper, scroll]
+         .invert_scroll     = {false, false},
+         .acceleration      = {false, false},
+-        .auto_mouse_enable = PHENOM_AUTO_MOUSE_SUPPORTED_MODES_MASK,
++        .auto_mouse_enable = 0, // misha: auto-mouse OFF by default (reach NAV with the thumb)
+         .auto_mouse_layer  = AUTO_MOUSE_DEFAULT_LAYER,
+ #ifdef EH_KEYBOARD_SPLIT_POINTING_V2
+         .sticky_mode            = {true, true},
+-        .side_auto_mouse_enable = {PHENOM_AUTO_MOUSE_SUPPORTED_MODES_MASK, PHENOM_AUTO_MOUSE_SUPPORTED_MODES_MASK},
++        .side_auto_mouse_enable = {0, 0}, // misha: auto-mouse OFF by default
+         .side_auto_mouse_layer  = {AUTO_MOUSE_DEFAULT_LAYER, AUTO_MOUSE_DEFAULT_LAYER},
+         .invert_text            = {false, false},
+         .version                = PHENOM_SPLIT_POINTING_SETTINGS_VERSION,
+diff --git a/quantum/qmk_settings.c b/quantum/qmk_settings.c
+index 79d3dd01..2f92489c 100644
+--- a/quantum/qmk_settings.c
++++ b/quantum/qmk_settings.c
+@@ -389,7 +389,10 @@ bool get_auto_shift_no_auto_repeat(uint16_t keycode, keyrecord_t *record) {
+     return QS_auto_shift_no_auto_repeat;
+ }
+ 
+-bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
++// NOTE (misha keymap): made weak so a keymap may provide its own custom
++// get_chordal_hold (opposite-hand + require-prior-idle logic). Without a
++// keymap override this behaves exactly as before.
++__attribute__((weak)) bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
+                       uint16_t other_keycode, keyrecord_t* other_record) {
+     if (QS_tapping_chordal_hold)
+         return get_chordal_hold_default(tap_hold_record, other_record);
