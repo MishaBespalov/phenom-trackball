@@ -418,13 +418,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS),
 
     /*
-     * SYM_RU - Symbols (Russian OS mode) — like SYM_EN but х, ё, ъ replace [, _, ].
+     * SYM_RU - Symbols (Russian OS mode) — same symbols as SYM_EN ([ _ ] etc.),
+     * plus ъ on the outer-right thumb (OS is auto-flipped to EN while this layer
+     * is active, so the RU_*_KEY keycodes briefly flip back to type Cyrillic).
      */
     [_SYM_RU] = LAYOUT(
-        KC_TILD, KC_LT,    KC_EQL,  KC_GT,    KC_EXLM,    KC_DLR,  RU_HA_KEY, RU_IO_KEY,  RU_HSG_KEY, KC_COMM,
+        KC_TILD, KC_LT,    KC_EQL,  KC_GT,    KC_EXLM,    KC_DLR,  KC_LBRC,   KC_UNDS,    KC_RBRC,    KC_COMM,
         GUI_BSL, ALT_LPRN, KC_MINS, CTL_RPRN, KC_PLUS,    KC_PERC, CTL_LCBR,  S(KC_SLSH), ALT_RCBR,   GUI_COLN,
         KC_HASH, KC_ASTR,  KC_GRV,  KC_SLSH,  KC_AMPR,    KC_AT,   KC_PIPE,   KC_DQUO,    KC_SCLN,    KC_DOT,
-        KC_TRNS, KC_TRNS, KC_TRNS, MO(_NAV), KC_LSFT,    KC_ENT, KC_NO, KC_TRNS, KC_TRNS, KC_TRNS,
+        KC_TRNS, KC_TRNS, KC_TRNS, MO(_NAV), KC_LSFT,    KC_ENT, KC_NO, KC_TRNS, KC_TRNS, RU_HSG_KEY,
         KC_TRNS, KC_TRNS),
 
     /*
